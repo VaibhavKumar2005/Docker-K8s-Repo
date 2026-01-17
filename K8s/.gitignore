@@ -1,5 +1,19 @@
-.DS_Store
-*.log
-node_modules/
+# --- Python & Venv ---
+.venv/
+venv/
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Logs & Databases ---
+*.log
+*.sqlite
+node_modules/
+
+# --- System Junk ---
+.DS_Store
+Thumbs.db
+
+# --- Secrets (Never upload these) ---
 .env
