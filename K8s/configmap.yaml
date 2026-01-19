@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaibhav-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Vaibhav's K8s Lab</title>
+        <style>
+            body { background-color: #0d1117; color: #c9d1d9; font-family: monospace; text-align: center; padding-top: 50px; }
+            h1 { color: #58a6ff; }
+            .box { border: 2px solid #30363d; padding: 20px; display: inline-block; border-radius: 10px; }
+            .status { color: #2ea043; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h1>Hello, Vaibhav! 🚀</h1>
+            <p>If you are reading this...</p>
+            <p class="status">The ConfigMap Volume Mount was SUCCESSFUL.</p>
+            <p>You have decoupled Code from Configuration.</p>
+        </div>
+    </body>
+    </html>

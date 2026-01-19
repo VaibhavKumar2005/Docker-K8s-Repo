@@ -1,50 +1,28 @@
-# ☸️ Docker & Kubernetes Learning Journey
+# ☸️ Cloud Native Learning Journey: Docker & Kubernetes
 
-This repository documents my hands-on experiments with Cloud Native technologies, focusing on **Docker containerization** and **Kubernetes orchestration**.
-
-## 🚀 Projects
-
-### 0. Docker Basics (Containerization)
-**Goal:** Package a legacy application into a portable container.
-* **Base Image:** Alpine Linux (Lightweight).
-* **Key Commands:** \docker build\, \docker run\, \docker push\.
-* **Outcome:** Created a custom image \aibhavkumar0412/my-ml-project\ capable of running on any machine.
-
-### 1. Project Hydra (High Availability K8s)
-**Goal:** Demonstrate Kubernetes' "Self-Healing" capabilities and Load Balancing.
-
-* **Architecture:**
-    * **Deployment:** 3 Replicas of Nginx.
-    * **Service:** Type LoadBalancer to expose the application.
-    * **Orchestrator:** Minikube.
-
-* **Key Concepts Applied:**
-    * **ReplicaSets:** Ensuring 3 pods are always running.
-    * **Services:** Stable networking and traffic distribution.
-
-#### 🛠️ How to Run
-\\\ash
-# 1. Start the Cluster
-minikube start
-
-# 2. Deploy the Hydra (3 Heads)
-kubectl apply -f hydra.yaml
-
-# 3. Create the Service (The Receptionist)
-kubectl apply -f service.yaml
-
-# 4. Access the App
-minikube service echo-service
-\\\
+This repository documents my hands-on journey mastering Cloud Native engineering, moving from basic containerization to self-healing distributed systems.
 
 ## 📂 Repository Structure
-\\\
-.
-├── Docker/             # Dockerfiles and Source Code
-└── K8s/                # Kubernetes Manifests (YAML)
-    ├── hydra.yaml      # Deployment Manifest
-    └── service.yaml    # Service Manifest
-\\\
 
----
-*Created by Vaibhav Kumar | Learning DevOps, One Pod at a Time.*
+### 📁 1. Docker/ (Containerization)
+* **Goal:** Package legacy Python applications into portable Alpine-based containers.
+* **Tech Stack:** Python, Docker, Alpine Linux.
+* **Key Achievement:** Reduced image size and implemented multi-stage builds.
+
+### 📁 2. K8s/ (Orchestration & Security)
+* **Project Hydra:** A High-Availability Nginx deployment.
+* **Architecture:**
+    * **Self-Healing:** 3 Replicas managed by a Deployment controller.
+    * **Decoupled Config:** HTML injected via **ConfigMaps** (No image rebuilds).
+    * **Security:** API Keys injected via **Kubernetes Secrets** (No hardcoded credentials).
+    * **Networking:** Exposed via LoadBalancer Service.
+
+## 🛠️ How to Run Project Hydra
+
+1. **Start Minikube:** `minikube start`
+2. **Create Secret Vault:** `kubectl create secret generic ai-keys --from-literal=api_key=sk-fake-123`
+3. **Deploy:**
+   ```bash
+   cd K8s
+   kubectl apply -f configmap.yaml
+   kubectl apply -f deployment.yaml 

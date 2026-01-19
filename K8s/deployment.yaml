@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-hydra
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-hydra
+  template:
+    metadata:
+      labels:
+        app: nginx-hydra
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+        
+        # --- NEW PART: INJECTING THE SECRET ---
+        env:
+        - name: MY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-keys
+              key: api_key
+        # --------------------------------------
+
+      volumes:
+      - name: html-volume
+        configMap:
+          name: vaibhav-html
