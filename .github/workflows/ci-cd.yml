@@ -3,8 +3,9 @@ name: Build and Push ML Dashboard
 on:
   push:
     branches: [ "main" ]
+    # FIX 1: Listen to changes in the correct sub-folder
     paths:
-      - 'v2-ml-dashboard/**'
+      - 'flask-dashboard/v2-ml-dashboard/**'
       - '.github/workflows/ci-cd.yml'
 
 jobs:
@@ -27,7 +28,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
-          context: ./v2-ml-dashboard
+          # FIX 2: Build from the correct folder path
+          context: ./flask-dashboard/v2-ml-dashboard
           push: true
           tags: |
             vaibhavkumar0412/flask-ml-dashboard:latest
