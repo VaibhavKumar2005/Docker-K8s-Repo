@@ -3,10 +3,9 @@ name: Build and Push ML Dashboard
 on:
   push:
     branches: [ "main" ]
-    # FIX 1: Listen to changes in the correct sub-folder
     paths:
-      - 'flask-dashboard/v2-ml-dashboard/**'
-      - '.github/workflows/ci-cd.yml'
+      # Wildcard to catch changes anywhere for now, so we can debug
+      - '**'
 
 jobs:
   build-push-docker:
@@ -15,6 +14,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      # --- DEBUG STEP START ---
+      - name: Debug - List All Files
+        run: |
+          echo "Listing root directory:"
+          ls -la
+          echo "----------------------"
+          echo "Listing recursively:"
+          ls -R
+      # --- DEBUG STEP END ---
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -25,10 +34,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # We keep the build step, but it might fail again. 
+      # We mainly want to see the output of the step above.
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
-          # FIX 2: Build from the correct folder path
           context: ./flask-dashboard/v2-ml-dashboard
           push: true
           tags: |
