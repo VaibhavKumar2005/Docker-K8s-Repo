@@ -1,36 +1,60 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: nginx-hydra
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx-hydra
-  template:
-    metadata:
-      labels:
-        app: nginx-hydra
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:alpine
-        ports:
-        - containerPort: 80
-        volumeMounts:
-        - name: html-volume
-          mountPath: /usr/share/nginx/html
-        
-        # --- NEW PART: INJECTING THE SECRET ---
-        env:
-        - name: MY_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: ai-keys
-              key: api_key
-        # --------------------------------------
+  name: vaibhav-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Hydra ML Dashboard</title>
+        <style>
+            body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f9; }
+            .card { background: white; padding: 20px; border-radius: 8px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+            #result { margin-top: 20px; font-weight: bold; color: #28a745; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>🐉 Hydra ML Dashboard</h1>
+            <p>Predicting scores based on study hours.</p>
+            <input type="number" id="hours" value="8" style="padding: 10px; width: 50px;">
+            <button onclick="makePrediction()">Test Prediction</button>
+            <div id="result"></div>
+        </div>
 
-      volumes:
-      - name: html-volume
-        configMap:
-          name: vaibhav-html
+        <script>
+            function makePrediction() {
+                const hours = document.getElementById('hours').value;
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerText = "Processing...";
+
+                // This calls the Nginx /predict endpoint, which proxies to Python
+                fetch(`/predict?hours=${hours}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultDiv.innerText = `Prediction: ${data.prediction_score}% (Study: ${data.study_hours}h)`;
+                    })
+                    .catch(err => {
+                        resultDiv.innerText = "Error: API unreachable";
+                        console.error(err);
+                    });
+            }
+        </script>
+    </body>
+    </html>
+
+  default.conf: |
+    server {
+        listen 80;
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+        location /predict {
+            proxy_pass http://hydra-api-service:80;
+            proxy_set_header Host $host;
+        }
+    }

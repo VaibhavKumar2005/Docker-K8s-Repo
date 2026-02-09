@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hydra-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hydra-api
+  template:
+    metadata:
+      labels:
+        app: hydra-api
+    spec:
+      containers:
+      - name: python-api
+        image: vaibhavkumar0412/hydra-api:v2-light
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hydra-api-service  
+spec:
+  selector:
+    app: hydra-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

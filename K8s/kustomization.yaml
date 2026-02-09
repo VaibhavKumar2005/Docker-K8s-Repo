@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# These are the files Kustomize will bundle together
+resources:
+  - configmap.yaml
+  - python-backend.yaml
+
+# This automatically adds labels to EVERYTHING (Pods, Services, etc.)
+commonLabels:
+  project: hydra-v3
+  tier: architecture-learning

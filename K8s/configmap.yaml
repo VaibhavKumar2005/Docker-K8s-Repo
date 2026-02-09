@@ -1,26 +1,92 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: vaibhav-html
+    name: vaibhav-html
 data:
-  index.html: |
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Vaibhav's K8s Lab</title>
-        <style>
-            body { background-color: #0d1117; color: #c9d1d9; font-family: monospace; text-align: center; padding-top: 50px; }
-            h1 { color: #58a6ff; }
-            .box { border: 2px solid #30363d; padding: 20px; display: inline-block; border-radius: 10px; }
-            .status { color: #2ea043; font-weight: bold; }
-        </style>
-    </head>
-    <body>
-        <div class="box">
-            <h1>Hello, Vaibhav! 🚀</h1>
-            <p>If you are reading this...</p>
-            <p class="status">The ConfigMap Volume Mount was SUCCESSFUL.</p>
-            <p>You have decoupled Code from Configuration.</p>
-        </div>
-    </body>
-    </html>
+    index.html: |
+        <!doctype html>
+        <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <title>Hydra ML Dashboard</title>
+            <style>
+                :root{--bg:#0f1724;--card:#0b1220;--accent:#7c3aed;--muted:#94a3b8}
+                body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#071022 0%,#0b1220 60%);font-family:Inter,system-ui,Arial;color:#e6eef8}
+                .card{width:760px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:28px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6);}
+                h1{margin:0 0 8px 0;font-size:20px}
+                p.lead{margin:0 0 18px 0;color:var(--muted)}
+                .grid{display:flex;gap:18px}
+                .panel{flex:1;background:rgba(255,255,255,0.02);padding:14px;border-radius:8px}
+                input[type=number],input[type=text]{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+                button{margin-top:8px;padding:10px 12px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer}
+                .result{margin-top:12px;padding:8px;border-radius:6px;background:rgba(255,255,255,0.02);font-weight:600}
+                footer{margin-top:16px;text-align:right;color:var(--muted);font-size:13px}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>🐉 Hydra ML Dashboard</h1>
+                <p class="lead">Tiny demos: study-hours predictor and sentiment analyzer — served from Kubernetes via ConfigMap + Nginx.</p>
+
+                <div class="grid">
+                    <div class="panel">
+                        <strong>Score Predictor</strong>
+                        <p class="lead">Enter hours to predict a score.</p>
+                        <input id="hours" type="number" value="8" min="0" />
+                        <button onclick="predict()">Predict</button>
+                        <div id="score" class="result">—</div>
+                    </div>
+
+                    <div class="panel">
+                        <strong>Sentiment Analyzer</strong>
+                        <p class="lead">Type text and get a sentiment label.</p>
+                        <input id="text" type="text" placeholder="I love this project" />
+                        <button onclick="analyze()">Analyze</button>
+                        <div id="sentiment" class="result">—</div>
+                    </div>
+                </div>
+
+                <footer>Hydra • ConfigMap-driven UI • Nginx proxies `/predict` and `/analyze`</footer>
+            </div>
+
+            <script>
+                function predict(){
+                    const h = document.getElementById('hours').value || 0;
+                    const el = document.getElementById('score');
+                    el.innerText = 'Loading...';
+                    fetch(`/predict?hours=${encodeURIComponent(h)}`)
+                        .then(r=>r.json())
+                        .then(d=> el.innerText = d.prediction_score!==undefined ? `Score: ${d.prediction_score}` : JSON.stringify(d))
+                        .catch(()=> el.innerText = 'API unreachable');
+                }
+
+                function analyze(){
+                    const t = document.getElementById('text').value || '';
+                    const el = document.getElementById('sentiment');
+                    el.innerText = 'Loading...';
+                    fetch(`/analyze?text=${encodeURIComponent(t)}`)
+                        .then(r=>r.json())
+                        .then(d=> el.innerText = d.sentiment_label || JSON.stringify(d))
+                        .catch(()=> el.innerText = 'API unreachable');
+                }
+            </script>
+        </body>
+        </html>
+
+    default.conf: |
+        server {
+            listen 80;
+            location / {
+                root /usr/share/nginx/html;
+                index index.html;
+            }
+            location /predict {
+                proxy_pass http://hydra-api-service:80;
+                proxy_set_header Host $host;
+            }
+            location /analyze {
+                proxy_pass http://hydra-api-service:80;
+                proxy_set_header Host $host;
+            }
+        }
